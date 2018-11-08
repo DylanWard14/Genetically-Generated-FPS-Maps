@@ -21,28 +21,28 @@ DNA::DNA(int genomeLength, int sizeX, int sizeY)
 
 DNA::DNA(DNA p1, DNA p2, int sizeX, int sizeY, float mutationRate)
 {
-	float mutationChance = FMath::RandRange(0.0f, 1.0f);
+	float mutationChance = FMath::RandRange(0.0f, 1.0f); //This will be used to determine if mutation will occur
 
-	for (int i = 0; i < p1.arenas.size(); i++)
+	for (int i = 0; i < p1.arenas.size(); i++) //loop through all the needed arenas
 	{
-		if (mutationChance <= mutationRate)
+		if (mutationChance <= mutationRate) //Check if the generated mutationChance is less than the mutation rate
 		{
-			int xPos = FMath::RandRange(1, sizeX - 10);
+			int xPos = FMath::RandRange(1, sizeX - 10); //Create a new Random Arena
 			int yPos = FMath::RandRange(1, sizeY - 10);
 			int size = FMath::RandRange(5, 10);
 			arenas.push_back(Arena(xPos, yPos, size));
 		}
-		else
+		else //Mutate arena from one of the parents
 		{
-			int parentChance = FMath::RandRange(0, 2);
+			int parentChance = FMath::RandRange(0, 2); //Generate random number to choose which parent will be used
 
-			if (parentChance == 0)
+			if (parentChance == 0) //use parent 1 
 			{
-				arenas.push_back(p1.arenas[i]);
+				arenas.push_back(p1.arenas[i]); //add the arena from parent 1
 			}
-			else
+			else //use parent 2
 			{
-				arenas.push_back(p2.arenas[i]);
+				arenas.push_back(p2.arenas[i]); //add the arena from parent 2
 			}
 		}
 	}
