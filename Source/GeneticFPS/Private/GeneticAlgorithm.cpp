@@ -42,7 +42,7 @@ void AGeneticAlgorithm::Tick(float DeltaTime)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Saving map with fitness value of %f"), survivors[0].fitness);
 				FString level = convertLevelToText(survivors[0]);
-				SaveTxt(level, "Maps.csv"); //Save this map
+				SaveTxt(level, "Maps.txt"); //Save this map
 			}
 		}
 	}

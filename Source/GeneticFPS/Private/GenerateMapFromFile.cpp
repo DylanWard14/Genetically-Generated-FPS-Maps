@@ -20,7 +20,7 @@ void AGenerateMapFromFile::BeginPlay()
 	Super::BeginPlay();
 
 	FString levelString;
-	LoadTxt("400k.csv", levelString);
+	LoadTxt("Maps.txt", levelString);
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *levelString);
 	myGrid.resize(50);
 	for (int x = 0; x < 50; x++)
