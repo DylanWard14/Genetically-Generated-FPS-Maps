@@ -47,11 +47,11 @@ DNA::DNA(DNA p1, DNA p2, int sizeX, int sizeY, float mutationRate)
 		}
 	}
 
-	for (int i = 0; i < p1.corridors.size(); i++)
+	for (int i = 0; i < p1.corridors.size(); i++) //Loop through all the needed corridors
 	{
-		if (mutationChance <= mutationRate)
+		if (mutationChance <= mutationRate) //Check if the generated mutationChance is less than the mutation rate
 		{
-			int xPos = FMath::RandRange(1, sizeX - 5);
+			int xPos = FMath::RandRange(1, sizeX - 5); //Create new random corridor
 			int yPos = FMath::RandRange(1, sizeY - 5);
 			int length;
 
@@ -70,15 +70,15 @@ DNA::DNA(DNA p1, DNA p2, int sizeX, int sizeY, float mutationRate)
 
 		else
 		{
-			int parentChance = FMath::RandRange(0, 2);
+			int parentChance = FMath::RandRange(0, 2); //select a parent to use for crossover
 
 			if (parentChance == 0)
 			{
-				corridors.push_back(p1.corridors[i]);
+				corridors.push_back(p1.corridors[i]); //add the corridor from parent 1
 			}
 			else
 			{
-				corridors.push_back(p2.corridors[i]);
+				corridors.push_back(p2.corridors[i]); //add the corridor from parent 2
 			}
 
 		}
@@ -86,6 +86,8 @@ DNA::DNA(DNA p1, DNA p2, int sizeX, int sizeY, float mutationRate)
 
 	
 	CreateGrid(sizeX, sizeY);
+
+	///this code is for use of cover, it is currently casuing memory issues
 	/*
 	UE_LOG(LogTemp, Warning, TEXT("p1 cover size = %i p2 cover size = %i"), p1.cover.size(), p2.cover.size());
 	for (int i = 0; i < p1.cover.size(); i++)
@@ -160,6 +162,7 @@ DNA::DNA(DNA p1, DNA p2, int sizeX, int sizeY, float mutationRate)
 	
 }
 
+///Creates DNA from a single parent
 DNA::DNA(DNA p1, int sizeX, int sizeY, float mutationRate)
 {
 	float mutationChance = FMath::RandRange(0.0f, 1.0f);
@@ -209,6 +212,8 @@ DNA::DNA(DNA p1, int sizeX, int sizeY, float mutationRate)
 
 	
 	CreateGrid(sizeX, sizeY);
+
+	///THis code is for use with Cover, it is currently causing memory issues
 	/*
 	UE_LOG(LogTemp, Warning, TEXT("p1 cover size = %i"), p1.cover.size());
 	for (int i = 0; i < p1.cover.size(); i++)
@@ -266,7 +271,7 @@ DNA::~DNA()
 
 void DNA::CreateGrid(int sizeX, int sizeY)
 {
-	myGrid.resize(sizeX);
+	myGrid.resize(sizeX); //resize the 2D vector
 	for (int x = 0; x < sizeX; x++)
 	{
 		myGrid[x].resize(sizeX);
@@ -276,11 +281,11 @@ void DNA::CreateGrid(int sizeX, int sizeY)
 	{
 		for (int j = 0; j < sizeY; j++)
 		{
-			myGrid[i][j] = 1;
+			myGrid[i][j] = 1; //set each index in the vector to equal 1
 		}
 	}
 
-	//adds the arenas to the list
+	//Loop through all the arenas and set the grid position to equal 0
 	for (int i = 0; i < arenas.size(); i++)
 	{
 		for (int x = arenas[i].xPosition; x < (arenas[i].size + arenas[i].xPosition); x++)
@@ -296,7 +301,7 @@ void DNA::CreateGrid(int sizeX, int sizeY)
 		}
 	}
 
-	//adds corridors to the list
+	//Loop through all the corridors and set the grid position to equal 0
 	for (int i = 0; i < corridors.size(); i++)
 	{
 		if (corridors[i].length >= 0)
@@ -330,6 +335,7 @@ void DNA::CreateGrid(int sizeX, int sizeY)
 
 }
 
+///This function creates completely random arenas
 void DNA::GenerateArenas(int genomeLength, int sizeX, int sizeY)
 {
 	for (int i = 0; i < genomeLength; i++)
@@ -341,6 +347,7 @@ void DNA::GenerateArenas(int genomeLength, int sizeX, int sizeY)
 	}
 }
 
+///This function creates completely random corridors
 void DNA::GenerateCorridors(int genomeLength, int sizeX, int sizeY)
 {
 	for (int i = 0; i < genomeLength; i++)

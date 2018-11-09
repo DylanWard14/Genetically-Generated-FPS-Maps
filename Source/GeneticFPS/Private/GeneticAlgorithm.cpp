@@ -21,7 +21,7 @@ void AGeneticAlgorithm::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitPopulation();
+	InitPopulation(); //Creates the first population at the beginning of the algorithm
 
 
 }
@@ -31,18 +31,18 @@ void AGeneticAlgorithm::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (population.size() == populationSize &&  CheckSimulationCompleted() && !processingGeneration)
+	if (population.size() == populationSize &&  CheckSimulationCompleted() && !processingGeneration) //IF the simulation is completed
 	{
 
-		NextGeneration();
+		NextGeneration(); //Create the next generation of maps
 
-		if (survivors.size() > 0)
+		if (survivors.size() > 0) //If the survivors list is greater than 0
 		{
-			if (survivors[0].fitness > 200000)
+			if (survivors[0].fitness > 200000) //check to see if the first survivors has a fitness value over this amount
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Saving map with fitness value of %f"), survivors[0].fitness);
 				FString level = convertLevelToText(survivors[0]);
-				SaveTxt(level, "Maps.csv");
+				SaveTxt(level, "Maps.csv"); //Save this map
 			}
 		}
 	}
@@ -66,10 +66,11 @@ bool AGeneticAlgorithm::LoadTxt(FString FileNameA, FString& SaveTextA)
 	return FFileHelper::LoadFileToString(SaveTextA, *(FPaths::GameDir() + FileNameA));
 }
 
+//This function is reposible for creating population
 void AGeneticAlgorithm::InitPopulation()
 {
 
-	for (int i = 0; i < populationSize; i++)
+	for (int i = 0; i < populationSize; i++) //loop through the population size and create a new map
 	{
 		FVector OriginLocation = FVector(0, i * 10000, 0);
 
@@ -88,6 +89,7 @@ void AGeneticAlgorithm::InitPopulation()
 	}
 }
 
+///This function loops through all the maps to check if they have completed the simulation
 bool AGeneticAlgorithm::CheckSimulationCompleted()
 {
 	if (population.size() == populationSize)
@@ -105,6 +107,7 @@ bool AGeneticAlgorithm::CheckSimulationCompleted()
 		return false;
 }
 
+///This function compares the fitness values of two maps and returns the highest
 DNA AGeneticAlgorithm::TournamentSelection(AGeneticMap* p1, AGeneticMap* p2)
 {
 	if (p1->MapFitness >= p2->MapFitness)
@@ -119,17 +122,18 @@ DNA AGeneticAlgorithm::TournamentSelection(AGeneticMap* p1, AGeneticMap* p2)
 	}
 }
 
+///This function creates the next generation of maps to test
 void AGeneticAlgorithm::NextGeneration()
 {
 	//std::vector<DNA> survivors;
-	processingGeneration = true;
-	while (population.size() != 0)
+	processingGeneration = true; //Set the processing variable to true
+	while (population.size() != 0) //While the population is no equal to 0
 	{
-		while (population.size() > 1)
+		while (population.size() > 1) //while it is greater than 1
 		{
-			int RandNum1 = FMath::RandRange(0, population.size() - 1);
-			int RandNum2 = FMath::RandRange(0, population.size() - 1);
-			while (RandNum2 == RandNum1)
+			int RandNum1 = FMath::RandRange(0, population.size() - 1); //select a random map from the population
+			int RandNum2 = FMath::RandRange(0, population.size() - 1); //select another random map from the population
+			while (RandNum2 == RandNum1) //if those two maps are the same then pick another one
 			{
 				RandNum2 = FMath::RandRange(0, population.size() - 1);
 			}
@@ -137,25 +141,25 @@ void AGeneticAlgorithm::NextGeneration()
 			population[RandNum1]->myDNA.fitness = population[RandNum1]->MapFitness;
 			population[RandNum2]->myDNA.fitness = population[RandNum2]->MapFitness;
 
-			if (population[RandNum1]->MapFitness != 0 && population[RandNum2]->MapFitness != 0)
+			if (population[RandNum1]->MapFitness != 0 && population[RandNum2]->MapFitness != 0) //If both maps have a fitness above 0
 			{
-				DNA winner = TournamentSelection(population[RandNum1], population[RandNum2]);
-				survivors.push_back(winner);
+				DNA winner = TournamentSelection(population[RandNum1], population[RandNum2]); //perform the tournament selection
+				survivors.push_back(winner); //add the winner to the survivors
 				UE_LOG(LogTemp, Warning, TEXT("Doing tournament selection"));
 			}
-			else if (population[RandNum1]->MapFitness != 0)
+			else if (population[RandNum1]->MapFitness != 0) // else If this map does not have a fitness value of 0 add it to survivors
 			{
 				survivors.push_back(population[RandNum1]->myDNA);
 				UE_LOG(LogTemp, Warning, TEXT("Saving p1 to survivors"));
 			}
-			else if (population[RandNum2]->MapFitness != 0)
+			else if (population[RandNum2]->MapFitness != 0) // else If this map does not have a fitness value of 0 add it to survivors
 			{
 				survivors.push_back(population[RandNum2]->myDNA);
 				UE_LOG(LogTemp, Warning, TEXT("saving p2 to surivors"));
 			}
 
 
-			population[RandNum1]->DestoryLevel();
+			population[RandNum1]->DestoryLevel(); //Destory both maps and erase them from the population
 			population[RandNum2]->DestoryLevel();
 			population.erase(population.begin() + RandNum1);
 			if(RandNum1 < RandNum2)
@@ -174,12 +178,12 @@ void AGeneticAlgorithm::NextGeneration()
 
 
 	std::vector<DNA> tempSurvivors = survivors;
-	while (population.size() < populationSize)
+	while (population.size() < populationSize) //While the current population is less than the population max size create new maps
 	{
 
 		for (int i = 0; i < populationSize; i++)
 		{
-			FVector OriginLocation = FVector(0, i * 10000, 0);
+			FVector OriginLocation = FVector(0, i * 10000, 0); //set the location of this map
 
 			FVector spawnLocation = FVector(i + OriginLocation.X, i + OriginLocation.Y, OriginLocation.Z);
 			FRotator rotator = FRotator(0, 0, 0);
@@ -188,16 +192,16 @@ void AGeneticAlgorithm::NextGeneration()
 			population.push_back(spawnedMap);
 
 			DNA newDNA;
-			if (tempSurvivors.size() > 1)
+			if (tempSurvivors.size() > 1) //if there are more than 1 surivors then perfrom cross over
 			{
 				//UE_LOG(LogTemp, Warning, TEXT("Creating Mixed DNA"));
 				// create random number1
-				int RandNum1 = FMath::RandRange(0, tempSurvivors.size() - 1);
-				int RandNum2 = FMath::RandRange(0, tempSurvivors.size() - 1);
+				int RandNum1 = FMath::RandRange(0, tempSurvivors.size() - 1); // choose one map
+				int RandNum2 = FMath::RandRange(0, tempSurvivors.size() - 1); // choose another
 				// create random number2
 
 				// pass them into a newDNA
-				newDNA = DNA(tempSurvivors[RandNum1], tempSurvivors[RandNum2], sizeX, sizeY);
+				newDNA = DNA(tempSurvivors[RandNum1], tempSurvivors[RandNum2], sizeX, sizeY); //create new DNA from those maps
 
 				tempSurvivors.erase(tempSurvivors.begin() + RandNum1);
 
@@ -244,6 +248,7 @@ void AGeneticAlgorithm::NextGeneration()
 	processingGeneration = false;
 }
 
+///Sort all the survivors in accending order
 std::vector<DNA> AGeneticAlgorithm::SortSurvivors(std::vector<DNA> Survivors)
 {
 	std::vector<DNA> tempList;
@@ -269,6 +274,7 @@ std::vector<DNA> AGeneticAlgorithm::SortSurvivors(std::vector<DNA> Survivors)
 	return newList;
 }
 
+///This function converts the level into a string that can be saved in a txt file
 FString AGeneticAlgorithm::convertLevelToText(DNA Level)
 {
 	FString tempString;

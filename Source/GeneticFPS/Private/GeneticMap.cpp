@@ -35,44 +35,46 @@ void AGeneticMap::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	//Gametime += (DeltaTime * GameplaySpeed) / 60;
-	Gametime += (DeltaTime * GameplaySpeed);
+	Gametime += (DeltaTime * GameplaySpeed); //This speeds up the game time by the gameplay speed
 
-	if (Gametime >= MaxPlaytime && !calculatedFitness)
+	if (Gametime >= MaxPlaytime && !calculatedFitness)//When the game timer has reached the max play time and we havent calculated fitness
 	{
-		CalculateFitness();
+		CalculateFitness(); // call the calculate fitness funciton
 		calculatedFitness = true;
 	}
 
 }
 
+///This function resizes the 2D array to the correct size of the map and assigns each index to 1
 void AGeneticMap::InitGrid()
 {
-	myGrid.resize(sizeX);
-	for (int x = 0; x < sizeX; x++)
+	myGrid.resize(sizeX); //resizes the 2D arrays x size
+	for (int x = 0; x < sizeX; x++) // loop through all the values in the x of the 2D array
 	{
-		myGrid[x].resize(sizeX);
+		myGrid[x].resize(sizeX); //Resize those arrays to the size of the map
 	}
 
-	for (int i = 0; i < sizeX; i++)
+	for (int i = 0; i < sizeX; i++) //Loop through the maps X
 	{
-		for (int j = 0; j < sizeY; j++)
+		for (int j = 0; j < sizeY; j++) //Loop through the maps Y
 		{
-			myGrid[i][j] = 1;
+			myGrid[i][j] = 1; //Set each index to 1. A value of 1 represents a wall
 		}
 	}
 }
 
+///This function loops through all the arenas in the maps DNA and changes the grids index to 0 at the positions of each arena
 void AGeneticMap::CreateArenas()
 {
-	for (int i = 0; i < myDNA.arenas.size(); i++)
+	for (int i = 0; i < myDNA.arenas.size(); i++) //Loop through all the arenas in the DNA
 	{
-		for (int x = myDNA.arenas[i].xPosition; x < (myDNA.arenas[i].size + myDNA.arenas[i].xPosition); x++)
+		for (int x = myDNA.arenas[i].xPosition; x < (myDNA.arenas[i].size + myDNA.arenas[i].xPosition); x++) //Loop through all the tiles in this arenas X
 		{
-			for (int y = myDNA.arenas[i].yPosition; y < (myDNA.arenas[i].size + myDNA.arenas[i].yPosition); y++)
+			for (int y = myDNA.arenas[i].yPosition; y < (myDNA.arenas[i].size + myDNA.arenas[i].yPosition); y++) //Loop through all the tiles in the arenas Y
 			{
-				if (x > 1 && x < (sizeX - 1) && y > 1 && y < (sizeY - 1))
+				if (x > 1 && x < (sizeX - 1) && y > 1 && y < (sizeY - 1)) //If we are inside the grid still
 				{
-					myGrid[x][y] = 0;
+					myGrid[x][y] = 0; //Set the index at position x,y to 0, representing a floor
 				}
 			}
 		}
@@ -80,6 +82,8 @@ void AGeneticMap::CreateArenas()
 	CreateCover();
 }
 
+///This function  will loops though all the cover in the maps DNA and change the grid index accordingly
+///This function is currently broken
 void AGeneticMap::CreateCover()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Creating Cover"));
@@ -120,34 +124,35 @@ void AGeneticMap::CreateCover()
 	//UE_LOG(LogTemp, Warning, TEXT("Cover created"));
 }
 
+///This function loops through all the Corridors in the maps DNA and changes the grids index to 0 at the positions of each Corridor
 void AGeneticMap::CreateCorridors()
 {
-	for (int i = 0; i < myDNA.corridors.size(); i++)
+	for (int i = 0; i < myDNA.corridors.size(); i++) //Loop through all the corridors in the DNA
 	{
-		if (myDNA.corridors[i].length >= 0)
+		if (myDNA.corridors[i].length >= 0) //If the length is a positive value, make the corridor run along the X
 		{
-			for (int x = myDNA.corridors[i].xPosition; x < (myDNA.corridors[i].length + myDNA.corridors[i].xPosition); x++)
+			for (int x = myDNA.corridors[i].xPosition; x < (myDNA.corridors[i].length + myDNA.corridors[i].xPosition); x++) //Loop through all the X positions
 			{
-				for (int y = myDNA.corridors[i].yPosition; y < (myDNA.corridors[i].yPosition + myDNA.corridors[i].width); y++)
+				for (int y = myDNA.corridors[i].yPosition; y < (myDNA.corridors[i].yPosition + myDNA.corridors[i].width); y++) //Loop through all the Y positions
 				{
-					if (x > 1 && x < (sizeX - 1) && y > 1 && y < (sizeY - 1))
+					if (x > 1 && x < (sizeX - 1) && y > 1 && y < (sizeY - 1)) //If we are still inside the grid
 					{
-						myGrid[x][y] = 0; // length along the x axis
+						myGrid[x][y] = 0; // set index to 0
 						//UE_LOG(LogTemp, Warning, TEXT("Going this way"));
 					}
 				}
 			}
 		}
 
-		else if (myDNA.corridors[i].length < 0)
+		else if (myDNA.corridors[i].length < 0) // if the length is a negative value, Make the corridor run along the Y
 		{
-			for (int x = std::abs(myDNA.corridors[i].xPosition); x < std::abs(myDNA.corridors[i].xPosition + myDNA.corridors[i].width); x++)
+			for (int x = std::abs(myDNA.corridors[i].xPosition); x < std::abs(myDNA.corridors[i].xPosition + myDNA.corridors[i].width); x++) //Loop through all the X positions
 			{
-				for (int y = std::abs(myDNA.corridors[i].yPosition); y < std::abs(myDNA.corridors[i].yPosition + myDNA.corridors[i].length); y++)
+				for (int y = std::abs(myDNA.corridors[i].yPosition); y < std::abs(myDNA.corridors[i].yPosition + myDNA.corridors[i].length); y++) //Loop through all the Y positions
 				{
-					if (x > 1 && x < (sizeX - 1) && y > 1 && y < (sizeY - 1))
+					if (x > 1 && x < (sizeX - 1) && y > 1 && y < (sizeY - 1)) //If we are still inside the grid
 					{
-						myGrid[x][y] = 0; // length along the y axis
+						myGrid[x][y] = 0; //Set index to 0
 						
 					}
 				}
@@ -156,6 +161,7 @@ void AGeneticMap::CreateCorridors()
 	}
 }
 
+///This function spawns the approriate models at each position
 void AGeneticMap::GenerateGrid()
 {
 	for (int i = 0; i < sizeX; i++)
@@ -177,19 +183,19 @@ void AGeneticMap::GenerateGrid()
 		rotator = FRotator(0, 0, 0);
 		actors.push_back(GetWorld()->SpawnActor<AWall>(TopWallActor, spawnLocation, rotator));
 	}
-	for (int x = 1; x < sizeX - 1; x++)
+	for (int x = 1; x < sizeX - 1; x++) //Loop through the maps X
 	{
-		for (int y = 1; y < sizeY - 1; y++)
+		for (int y = 1; y < sizeY - 1; y++) //Loop through the Maps Y
 		{
 			UWorld* world = GetWorld();
-			if (myGrid[x][y] == 1)
+			if (myGrid[x][y] == 1) //If the currnet loop index equals 1, a Wall tile
 			{
 				if (world)
 				{
-					CheckLeft(x, y);
-					CheckRight(x, y);
-					CheckTop(x, y);
-					CheckBottom(x, y);
+					CheckLeft(x, y); //Check if we should spawn a left wall
+					CheckRight(x, y); //Check if we should spawn a right wall
+					CheckTop(x, y); //Check if we should spawn a Top wall
+					CheckBottom(x, y); //Check if we should spawn a bottom wall
 				}
 
 				/*FVector thisLocation = GetActorLocation();
@@ -199,7 +205,7 @@ void AGeneticMap::GenerateGrid()
 				*/
 			}
 
-			if (myGrid[x][y] == 0 || myGrid[x][y] == 2 || myGrid[x][y] == 3)
+			if (myGrid[x][y] == 0 || myGrid[x][y] == 2 || myGrid[x][y] == 3) //if the index is a 0 then we spawn a floor tile
 			{
 				// spawn floor
 				FVector thisLocation = GetActorLocation();
@@ -208,7 +214,7 @@ void AGeneticMap::GenerateGrid()
 				actors.push_back(GetWorld()->SpawnActor<AWall>(FloorActor, spawnLocation, rotator));
 			}
 
-			if (myGrid[x][y] == 2)
+			if (myGrid[x][y] == 2) //this is reposible for spawing cover
 			{
 				// spawn floor
 				FVector thisLocation = GetActorLocation();
@@ -216,7 +222,7 @@ void AGeneticMap::GenerateGrid()
 				FRotator rotator = FRotator(0, 0, 0);
 				actors.push_back(GetWorld()->SpawnActor<AWall>(CoverActor, spawnLocation, rotator));
 			}
-			if (myGrid[x][y] == 3)
+			if (myGrid[x][y] == 3) //this is resposible for spawning a rotated cover actor
 			{
 				// spawn floor
 				FVector thisLocation = GetActorLocation();
@@ -228,6 +234,7 @@ void AGeneticMap::GenerateGrid()
 	}
 }
 
+///This function spawns the bots at the opposite ends of the map
 void AGeneticMap::SpawnBots()
 {
 	int botsPerTeam = NumberOfBots / NumberOfTeams;
@@ -235,7 +242,7 @@ void AGeneticMap::SpawnBots()
 	int botsSpawned = 0;
 	if (world)
 	{
-		for (int x = 0; x < sizeX-1; x++)
+		for (int x = 0; x < sizeX-1; x++) 
 		{
 			for (int y = 0; y < sizeY-1; y++)
 			{
@@ -285,13 +292,14 @@ void AGeneticMap::SpawnBots()
 	}
 }
 
+///This function is reposible for calculating the fitness value of the map
 void AGeneticMap::CalculateFitness()
 {
 	float totalFightingTime = 0;
 	float fightingTimeCount = 0;
 	float TempFitness = 0;
 
-	for (int i = 0; i < NumberOfBots; i++)
+	for (int i = 0; i < NumberOfBots; i++) //Loop through all the bots in the map and total their tension and fighting times
 	{
 		TempFitness += bots[i]->tension;
 
@@ -305,34 +313,36 @@ void AGeneticMap::CalculateFitness()
 
 	float averageFightingTime = 0;
 
-	if (totalFightingTime > 0)
+	if (totalFightingTime > 0) //calculate the averate fighting time
 	{
 		// calculate average fighting time
 		averageFightingTime = totalFightingTime / fightingTimeCount;
 	}
 	
-	MapFitness = ((TempFitness / NumberOfBots) + GetLevelSize()) * averageFightingTime;
+	MapFitness = ((TempFitness / NumberOfBots) + GetLevelSize()) * averageFightingTime; //Calculate the maps fitness value
 
 	UE_LOG(LogTemp, Warning, TEXT("Map fitness = %f"), MapFitness);
 	
 }
 
+///This function calcualtes the levels overall size
 int AGeneticMap::GetLevelSize()
 {
 	int size = 0;
-	for (int x = 0; x < sizeX; x++)
+	for (int x = 0; x < sizeX; x++) //Loop through the maps X
 	{
-		for (int y = 0; y < sizeY; y++)
+		for (int y = 0; y < sizeY; y++) //Loop through the maps y
 		{
-			if (myGrid[x][y] == 0)
+			if (myGrid[x][y] == 0) //for each index of 0 in the array
 			{
-				size++;
+				size++; //increase the size varaible
 			}
 		}
 	}
 	return size;
 }
 
+///This function is reposible for performing cross over
 void AGeneticMap::StartCrossOver()
 {
 	myDNA = DNA(p1->myDNA, p2->myDNA, sizeX, sizeY);
@@ -342,7 +352,7 @@ void AGeneticMap::StartCrossOver()
 	GenerateGrid();
 }
 
-
+/// This function checks to see if there is a floor tile next to this wall on the left side
 bool AGeneticMap::CheckLeft(int x, int y)
 {
 	UWorld* world = GetWorld();
@@ -359,6 +369,7 @@ bool AGeneticMap::CheckLeft(int x, int y)
 	return false;
 }
 
+/// This function checks to see if there is a floor tile next to this wall on the right side
 bool AGeneticMap::CheckRight(int x, int y)
 {
 	UWorld* world = GetWorld();
@@ -375,6 +386,7 @@ bool AGeneticMap::CheckRight(int x, int y)
 		return false;
 }
 
+/// This function checks to see if there is a floor tile next to this wall on the top side
 bool AGeneticMap::CheckTop(int x, int y)
 {
 	UWorld* world = GetWorld();
@@ -391,6 +403,7 @@ bool AGeneticMap::CheckTop(int x, int y)
 		return false;
 }
 
+/// This function checks to see if there is a floor tile next to this wall on the bottom side
 bool AGeneticMap::CheckBottom(int x, int y)
 {
 	UWorld* world = GetWorld();
@@ -407,6 +420,7 @@ bool AGeneticMap::CheckBottom(int x, int y)
 		return false;
 }
 
+/// This function destorys the level and the AI aswell as clearing all arrays and vectors
 void AGeneticMap::DestoryLevel()
 {
 	for (int i = 0; i < bots.Max(); i++)
